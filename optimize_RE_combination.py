@@ -22,20 +22,19 @@ class RandomRESet(res.REList):
 
 def main():
     # argument parser
-    parser = argparse.ArgumentParser(description='Get the best of n restriction enzyme sets combinations by random sampling')
-    parser.add_argument('RELIST',help='Restriction enzyme list file')
+    parser = argparse.ArgumentParser(description='Generate optimized RE combination')
+    parser.add_argument('REpool',help='RE candidate pool')
     parser.add_argument('FASTA', help='Sequence file in FASTA format')
-    parser.add_argument('-l', default = 81, type = int, help = 'length of the former missing part, every fragments contain this part, default = 81')
-    parser.add_argument('-nl', action = 'store_true', help = 'no former missing part, default = False')
-    parser.add_argument('-L', default = 481, type = int, help = 'max capture length, default = 481')
-    parser.add_argument('-n', type=int, default=2, help='Number of restriction enzyme sets in the combination, default=2')
-    parser.add_argument('-m', type=int, default=1, help='Minimum number of restriction enzymes per set, default=1')
-    parser.add_argument('-M', type=int, default=4, help='Maximum number of restriction enzymes per set, default=4')
-    parser.add_argument('-i', type=int, default=100, help='Number of restriction enzyme sets generated, default=1000')
-    parser.add_argument('-c', type=int, default=1000, help='Number of iterations for combiantion, default=200000')
-    parser.add_argument('--combination_only', action='store_true', help='Only do combiantion')
+    parser.add_argument('-o', help = 'output file base name, default = FASTA filename')
+    parser.add_argument('-l', metavar = 'l', default = 81, type = int, help = 'Minimum suitable genome sequence length, default = 81')
+    parser.add_argument('-L', default = 481, type = int, help = 'Maximum suitable genome sequence length, default = 481')
+    parser.add_argument('-n', default = 1, type = int, help = 'Minimum number of RE in a set, default = 1')
+    parser.add_argument('-N', default = 4, type = int, help = 'Maximum number of RE in a set, default = 4')
+    parser.add_argument('-m', type=int, default=2, help='Number of restriction enzyme sets in the combination, default=2')
+    parser.add_argument('-i', default = 100, type = int, help = 'Number of random RE sets generated, default = 100')
+    parser.add_argument('-c', type=int, default=1000, help='Number of iterations for combination, default=200000')
     parser.add_argument('--circular', nargs='+', default=['chrM'], help='Circular chromosome/plasmids, default=chrM')
-    parser.add_argument('-o', default = '', help='Output file basename. Default: same with FASTA name')
+    parser.add_argument('--combination_only', action='store_true', help='Only do combiantion')
     args = parser.parse_args()
 
     # output file basename:
@@ -45,11 +44,7 @@ def main():
         OUTPUT_FILE_BASE = args.o
 
     # read restriction enzyme
-    all_re = RandomRESet(args.RELIST)
-
-    # minimum length
-    if args.nl:
-        args.l = 0
+    all_re = RandomRESet(args.REpool)
 
     # build the RE sets
     resets = {}
@@ -58,7 +53,7 @@ def main():
         print('Start to generate restriction enzyme cut!')
         hist = {}
         for i in tqdm(range(args.i), desc='Generating RE set'):
-            num = np.random.randint(args.m, args.M+1)
+            num = np.random.randint(args.n, args.N+1)
             sampled = all_re.rand_samp(num)
             # append to reset with out replication
             if sampled not in hist:
@@ -92,11 +87,11 @@ def main():
     best_comb = None
     print('Start random combination!')
     with open(args.o + '.log', 'w') as logw:
-        logw.write('\t'.join(['res{:d}'.format(x+1) for x in range(args.n)]) + '\tMissing\n')
+        logw.write('\t'.join(['res{:d}'.format(x+1) for x in range(args.m)]) + '\tMissing\n')
         hist = {}
         for it in tqdm(range(args.c), desc='Combination'):
             # random choose n sets
-            idx = np.random.choice(list(resets.keys()), args.n, replace=False)
+            idx = np.random.choice(list(resets.keys()), args.m, replace=False)
             idx = tuple(sorted(idx))
             # skip duplicates
             if not idx in hist:
@@ -136,13 +131,13 @@ def main():
                     count = 0
                     for i in sorted(v.keys()):
                         count += v[i]
-                        assert count <= args.n, f'Error in count missings of combination {idx} in chromosome {chrom}({s})!'
+                        assert count <= args.m, f'Error in count missings of combination {idx} in chromosome {chrom}({s})!'
                         if in_intersect:
-                            if count < args.n:
+                            if count < args.m:
                                 missing += i
                                 in_intersect = False
                         else:
-                            if count == args.n:
+                            if count == args.m:
                                 missing -= i
                                 in_intersect = True
             logw.write('\t'.join([','.join([r for r in resets[x]]) for x in idx]) + '\t{:d}\n'.format(missing))

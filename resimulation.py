@@ -289,10 +289,9 @@ def main():
     parser = argparse.ArgumentParser(description='Calculate the capture percent and export missing part when sequencing the fragments made by restrict enzyme.', prog='python calculate_uncapture_sequence.py')
     parser.add_argument('res', help='list of restrict enzyme cut sites')
     parser.add_argument('fasta', help='FASTA sequence of genome')
-    parser.add_argument('-l', metavar = 'l', default = 81, type = int, help = 'length of the former missing part, every fragments contain this part, default = 81')
-    parser.add_argument('-nl', action = 'store_true', help = 'no former missing part, default = False')
-    parser.add_argument('-L', default = 481, type = int, help = 'max capture length, default = 481')
-    parser.add_argument('-o', default = '', help = 'output file base name, default = FASTA filename')
+    parser.add_argument('-o', help = 'output file base name, default = FASTA filename')
+    parser.add_argument('-l', metavar = 'l', default = 81, type = int, help = 'Minimum suitable genome sequence length, default = 81')
+    parser.add_argument('-L', default = 481, type = int, help = 'Maximum suitable genome sequence length, default = 481')
     parser.add_argument('--circular', nargs='+', default=['chrM'], help='Circular chromosome/plasmids, default=chrM')
     args = parser.parse_args()
 
@@ -300,10 +299,7 @@ def main():
     if not args.o:
         args.o = args.fasta
     max_capture = args.L
-    if args.nl:
-        min_capture = 0
-    else:
-        min_capture = args.l
+    min_capture = args.l
 
     # get restriction enzymes
     res = REList(args.res)

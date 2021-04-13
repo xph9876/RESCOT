@@ -242,29 +242,25 @@ class OptCoverage(Coverage):
 
 def main():
     # argument parser
-    parser = argparse.ArgumentParser(description='Optimize the restriction enzyme set by ribose map cover rate.', prog='python optimize_cover_rate.py')
-    parser.add_argument('RESTRICT_LIST', help='list of restrict enzyme cut sites')
-    parser.add_argument('FASTA', help='FASTA sequence of genome')
-    parser.add_argument('-l', default = 81, type = int, help = 'length of the former missing part, every fragments contain this part, default = 81')
-    parser.add_argument('-nl', action = 'store_true', help = 'no former missing part, default = False')
-    parser.add_argument('-L', default = 481, type = int, help = 'max capture length, default = 481')
-    parser.add_argument('-o', default = '', help = 'output file base name, default = FASTA filename')
-    parser.add_argument('-i', default = 100, type = int, help = 'max iteration times, default = 100')
-    parser.add_argument('-n', default = 1, type = int, help = 'min number of restriction enzymes, default = 1')
-    parser.add_argument('-N', default = 4, type = int, help = 'max number of restriction enzymes, default = 4')
+    parser = argparse.ArgumentParser(description='Generate optimized RE set.')
+    parser.add_argument('REpool', help='RE candidate pool')
+    parser.add_argument('fasta', help='FASTA sequence of genome')
+    parser.add_argument('-o', help = 'output file base name, default = FASTA filename')
+    parser.add_argument('-l', metavar = 'l', default = 81, type = int, help = 'Minimum suitable genome sequence length, default = 81')
+    parser.add_argument('-L', default = 481, type = int, help = 'Maximum suitable genome sequence length, default = 481')
+    parser.add_argument('-i', default = 100, type = int, help = 'Number of iterations, default = 100')
+    parser.add_argument('-n', default = 1, type = int, help = 'Minimum number of RE in a set, default = 1')
+    parser.add_argument('-N', default = 4, type = int, help = 'Maximum number of RE in a set, default = 4')
     parser.add_argument('--circular', nargs='+', default=['chrM'], help='Circular chromosome/plasmids, default=chrM')
-    parser.add_argument('--start', default='', type=str, metavar='N,N,N......', help='Restriction enzyme index to start optimization with, zero-started index should separated by comma, example:(0,1,3,5)')
+    parser.add_argument('--start', default='', type=str, metavar='N,N,N......', help='Index of REs in candidate pool to start optimization with, zero-started index should separated by comma, example:(0,1,3,5)')
     args = parser.parse_args()
 
-    restrict_list_file = args.RESTRICT_LIST
-    fasta = args.FASTA
+    restrict_list_file = args.REpool
+    fasta = args.fasta
     if not args.o:
         args.o = fasta
     max_capture = args.L
-    if args.nl:
-        min_capture = 0
-    else:
-        min_capture = args.l
+    min_capture = args.l
     iterations = args.i
     max_number = args.N
     min_number = args.n
