@@ -1,16 +1,16 @@
 # RESCOT: Restriction Enzyme Set and Combination Optimization Tools
 Calculate the rNMP coverage of restriction enzyme (RE) and generate optimized RE sets and RE combinations used for [ribose-seq](https://www.nature.com/articles/nmeth.3259) and the other rNMP capture techniques.
 
-### Dependencies
+## Dependencies
 
 The following packages are required by RESCOT:
 
 - numpy
 - tqdm
 
-### Usage
+## Usage
 
-#### Calculate rNMP coverage
+### Calculate rNMP coverage
 
 The rNMP coverage is the ratio of rNMP captured region in genome. It can be calculated using reference genome and RE set. 
 
@@ -36,7 +36,7 @@ Output:
 
 rNMP coverage, RE cut sites, and rNMP missing part.
 
-#### Optimize RE set
+### Optimize RE set
 
 Generate optimized RE set using a RE candidate pool and reference genome.
 
@@ -65,7 +65,7 @@ Optional parameter:
 Output:
 RE list, rNMP coverage, RE cut sites, and rNMP missing part for optimized RE set. And the optimization history
 
-#### Optimize RE combination
+### Optimize RE combination
 
 Generate optimized RE combination using a RE candidate pool and reference genome.
 
@@ -96,10 +96,10 @@ Optional parameter:
 Output:
 Random RE sets and optimization history. The optimized RE combination can be found in the optimization history
 
-### License
+## License
 
 This software is under GNU GPL v3.0 license
 
-### Contact
+## Contact
 
 If you have any question, please contact me at [pxu64@gatech.edu](mailto:pxu64@gatech.edu).
